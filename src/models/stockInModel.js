@@ -1,4 +1,5 @@
 
+const { v4: uuidv4 } = require('uuid');
 
 const stockSchema = new mongoose.Schema({
     _id:{
@@ -7,34 +8,44 @@ const stockSchema = new mongoose.Schema({
     },
     supplierId:{
         type:String,
-        ref: "Supplier"
+        ref: "Suppliers",
+        required: true
         
     },
     total:{
         type:String,
+        required: true
     },
     sub_total:{
-        type:String
+        type:String,
+        required: true
     },
     tax:{
         type: String,
+        required: true
     },
     invoice_file_path: {
-        type: String
+        type: String,
+        required: true
     },
-    Status:{
-        type:Boolean
+     status: {
+        type: String,
+        enum: ["pending", "received", "cancelled"],
+        default: "received"
     },
     createdBy:{
-        type:String
-    },
-    createdAt:{
-        type: String
+        type:String,
+        ref: "Users",
+        required: true
     },
 
-    purchase_items:{
-        ref:"PurchaseItems"
-    }
-})
 
-module.exports = mongoose.modal("Stock", stockSchema);
+  purchase_items: [{
+    type: String,
+    ref: "PurchaseItems",
+    required: true
+}]
+
+}, { timestamps: true })
+
+module.exports = mongoose.model("Stocks", stockSchema);

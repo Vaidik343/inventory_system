@@ -6,25 +6,27 @@ const purchaseItemsSchema = new mongoose.Schema({
         default:uuidv4
     },
     productId:{
-        ref:"Product"
+           type: String,
+        ref: "Products",
+        required: true
     },
     qty:{
         type:String,
         require:true
     },
-    const_price:{
+    cost_price:{
             type: String,
             require:true
     },
     batch_No: {
         type: String,
-        require: true
+        required: true
     },
         expiry: {
             type: String,
-            require: true
+            required: true
         }
 
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model("PurchaseItems", purchaseItemsSchema);

@@ -1,4 +1,5 @@
 const { default: mongoose } = require("mongoose")
+const { v4: uuidv4 } = require('uuid');
 
 const supplierSchema = new mongoose.Schema({
     _id:{
@@ -7,20 +8,20 @@ const supplierSchema = new mongoose.Schema({
     },
     name: {
          type: String,
-        require: true
+        required: true
     },
     contact_person: {
          type: String,
-        require: true
+        required: true
     },
     email: {
          type: String,
-        require: true,
+        required: true,
         unique: true
     },
     phone: {
          type: String,
-        require: true
+        required: true
     },
     address: {
     street: String,
@@ -29,15 +30,16 @@ const supplierSchema = new mongoose.Schema({
     pin_code: String
     },
 
-    payment_term:{
-        type:Boolean,
-        value: ["Paid", "Not Paid Yet"]
-
-    },
+  payment_term: {
+  type: String,
+  enum: ["paid", "unpaid"],
+  default: "unpaid"
+},
     note:{
+        type:String
 
     }
 
-})
+},{ timestamps: true })
 
-module.exports = mongoose.model("Supplier", supplierSchema)
+module.exports = mongoose.model("Suppliers", supplierSchema)

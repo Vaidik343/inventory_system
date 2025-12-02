@@ -10,33 +10,30 @@ const userSchema = new mongoose.Schema({
 
     role: {
         type: String,
-        ref: "Role",
-        require : true
+        ref: "Roles",
+       required: true,
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     password: {
         type: String,
-        require: true,
+        required: true,
         
     },
     isActive: {
         type: Boolean,
-        require: true,
+        required: true,
         default: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    last_login: {
-        type: Date,
-             default: Date.now
-    }
-    
-})
 
-module.exports = mongoose.model("User", userSchema);
+    last_login: {
+        type: Date
+    }
+   
+    
+}, { timestamps: true })
+
+module.exports = mongoose.model("Users", userSchema);
