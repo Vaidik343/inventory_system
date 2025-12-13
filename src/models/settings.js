@@ -23,9 +23,7 @@ const settingSchema = new mongoose.Schema({
 
 
     invoice_prefix: {
-        type: String,
-      
-        
+        type: String, 
     },
     tax_rates: {
         type: String,
