@@ -1,3 +1,5 @@
+const mongoose = require("mongoose")
+const { v4: uuidv4 } = require('uuid');
 
 const adjustmentSchema = new mongoose.Schema({
 
@@ -6,6 +8,7 @@ const adjustmentSchema = new mongoose.Schema({
         default:uuidv4
     },
     productId:{
+                   type: String,
         ref:"Products"
     },
     changes:{ 

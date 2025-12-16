@@ -6,9 +6,9 @@ const {
 } = require("../controllers/stockAdjustment");
 
 // MANUAL STOCK ADJUSTMENT
-router.post("/", stockAdjustmentController.adjustStock);
+router.post("/stockAdjust", stockAdjustmentController.adjustStock);
 
 // VIEW STOCK ADJUSTMENT HISTORY
-router.get("/", stockAdjustmentController.getAllAdjustmentStock);
+router.get("/stockAdjust", stockAdjustmentController.getAllAdjustmentStock);
 
 module.exports = router;

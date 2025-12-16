@@ -6,12 +6,12 @@ const {
 } = require("../controllers/purchase");
 
 // CREATE PURCHASE (Stock In)
-router.post("/", purchaseController.createStockIn);
+router.post("/purchase", purchaseController.createStockIn);
 
 // GET ALL PURCHASES
-router.get("/", purchaseController.getPurchases);
+router.get("/purchase", purchaseController.getPurchases);
 
 // GET PURCHASE BY ID
-router.get("/:id", purchaseController.getPurchaseById);
+router.get("/purchase/:id", purchaseController.getPurchaseById);
 
 module.exports = router;
