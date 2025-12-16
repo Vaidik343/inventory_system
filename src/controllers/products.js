@@ -72,6 +72,8 @@ const updateProducts = async (req, res) => {
         const product = await Products.findByIdAndUpdate(productId, updateData, {
             new: true
         });
+
+        res.status(200).json(product);
     } catch (error) {
         console.log("🚀 ~ updateProducts ~ error:", error)
           res.status(500).json({message:"Server error!"})

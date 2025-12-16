@@ -18,8 +18,8 @@ const salesItemsSchema = new mongoose.Schema({
     },
     discount:{
         type:String,
-        require:false
+        require:false 
     }
 }, { timestamps: true })
 
-module.exports = mongoose.model("SalesItems", salesItemsSchema)
+module.exports = mongoose.model("SalesItems", salesItemsSchema) 

@@ -8,8 +8,8 @@ const adjustmentSchema = new mongoose.Schema({
     productId:{
         ref:"Products"
     },
-    changes:{
-        type:String
+    changes:{ 
+        type:Number
     },
     reason:{
         type:String

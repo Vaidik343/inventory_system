@@ -18,7 +18,7 @@ const purchaseItemsSchema = new mongoose.Schema({
             type: String,
             require:true
     },
-    batch_No: {
+    batch_No: { 
         type: String,
         required: true
     },

@@ -65,4 +65,14 @@ const deleteRoles = async (req,res) => {
     }
 }
 
-module.exports.rolesController = {createRole,getRoles,updateRoles,deleteRoles }
+const roleOnly = (roleName) => {
+  return (req, res, next) => {
+    if (req.user.role.name !== roleName) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    next();
+  };
+};
+
+
+module.exports.rolesController = {createRole,getRoles,updateRoles,deleteRoles, roleOnly }

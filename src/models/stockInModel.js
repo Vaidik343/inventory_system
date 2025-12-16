@@ -42,9 +42,9 @@ const stockSchema = new mongoose.Schema({
 
   purchase_items: [{
     type: String,
-    ref: "PurchaseItems",
+    ref: "PurchaseItems", 
     required: true
-}]
+}] 
 
 }, { timestamps: true })
 

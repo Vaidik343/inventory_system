@@ -65,4 +65,4 @@ const deleteCategory = async (req,res) => {
     }
 }
 
-module.exports.CategoryController = {createRole,getCategory,updateCategory,deleteCategory }
+module.exports.categoryController = {createCategory,getCategory,updateCategory,deleteCategory }
