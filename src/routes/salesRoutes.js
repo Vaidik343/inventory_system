@@ -1,25 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-salesController
-} = require("../controllers/sales");
+const { salesController } = require("../controllers/sales");
 
 // CREATE SALE
 router.post(
   "/sales",
-  auth,
-  permit("sale:create"),
+
   salesController.createSales
 );
 
 // GET ALL SALES
-router.get(
-  "/sales",
-  auth,
-  permit("sale:view"),
-  salesController.getSales
-);
+router.get("/sales",salesController.getSales);
 
 // GET SALE BY ID
 router.get("/sales/:id", salesController.getSalesById);

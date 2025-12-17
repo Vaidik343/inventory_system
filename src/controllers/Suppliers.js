@@ -67,4 +67,4 @@ const deleteSuppliers = async (req, res) => {
 
 }
 
-module.exports = {getSuppliers, createSuppliers, updateSuppliers , deleteSuppliers}
+module.exports.suppliersControllers = {getSuppliers, createSuppliers, updateSuppliers , deleteSuppliers}

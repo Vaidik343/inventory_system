@@ -1,5 +1,7 @@
-const {Sales} = require("../models");
+const {Sales, SalesItems, Products,PurchaseItems, StockAdjustment} = require("../models");
 
+
+//sales - report
 const salesSummaryReport = async (req, res) => {
     try {
         const {startDate, endDate} = req.query;
@@ -77,4 +79,89 @@ const salesSummaryReport = async (req, res) => {
 
 }
 
-module.exports = {salesSummaryReport}
+
+//profit - report
+
+// need few change work on later
+
+const profileReport = async (req, res) => {
+    try {
+        // only active sales
+        const sales = await Sales.find({ status: "active"})
+        .populate({
+            path:"sales_items",
+            populate: {
+                path: "productId",
+                select: "name cost"
+            }
+        });
+
+        let totalRevenue = 0;
+        let totalCost = 0;
+
+        for (const sale of sales)
+        {
+            for (const item of sale.sales_items)
+            {
+                const quantity = Number(item.quantity);
+                const sellPrice = Number(item.sell_price);
+                const discount = Number(item.discount || 0);
+                const costPrice = Number(item.productId.cost || 0);
+
+                totalRevenue += (sellPrice * quantity) - discount;
+                totalCost += costPrice * quantity;
+            }
+        }
+
+        const profit = totalRevenue - totalCost;
+
+
+        res.status(200).json({
+            totalRevenue,
+            totalCost,
+            profit
+        });
+        
+    } catch (error) {
+        console.log("🚀 ~ profileReport ~ error:", error)
+        res.status(500).json({ message: "Internal server error" });
+    }
+
+}
+
+//Stock Movement Audit Report
+
+const stockMovementReport = async (req, res) => {
+    try {
+        const {productId, reason, from, to} = req.query;
+
+        const filter = {};
+
+        if(productId) filter.productId = productId;
+        if(reason) filter.reason = reason;
+
+        if(from || to)
+        {
+        filter.createdAt = {};
+        if(from) filter.createdAt.$gte = new Date(from);
+        if(to) filter.createdAt.$lte = new Date(to);
+        }
+
+        const movements = await StockAdjustment.find(filter)
+         .populate("productId", "name sku")
+         .populate("changedBy", "email")
+         .sort({createdAt: -1});
+
+        res.status(200).json({
+            count: movements.length,
+            movements
+        });
+
+    } catch (error) {
+        console.log("🚀 ~ stockMovementReport ~ error:", error)
+         res.status(500).json({ message: "Internal server error" });
+        
+    } 
+
+}
+module.exports.reportController = {salesSummaryReport , profileReport ,stockMovementReport}
