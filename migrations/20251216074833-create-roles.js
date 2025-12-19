@@ -3,7 +3,9 @@ module.exports.up = async (db) => {
     {
       _id: "admin-role-id",
       name: "admin",
-      permissions: ["*"]
+      permissions: ["*"],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       _id: "manager-role-id",
@@ -12,7 +14,9 @@ module.exports.up = async (db) => {
         "purchase:create",
         "stock:adjust",
         "report:view"
-      ]
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       _id: "staff-role-id",
@@ -21,13 +25,10 @@ module.exports.up = async (db) => {
         "sale:create",
         "sale:view",
         "product:view"
-      ]
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
   ]);
 };
 
-module.exports.down = async (db) => {
-  await db.collection("roles").deleteMany({
-    name: { $in: ["admin", "manager", "staff"] }
-  });
-};

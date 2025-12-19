@@ -1,10 +1,14 @@
-const { StockIn, PurchaseItems, Products, Suppliers } = require("../models");
+const { StockIn,StockAdjustment, PurchaseItems, Products, Suppliers } = require("../models");
 const { populate } = require("../models/roleModel");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+
 
 const createStockIn = async (req, res) => {
   const { supplierId, tax, invoice_file_path, items } = req.body;
+  console.log("🚀 ~ createStockIn ~ supplierId, tax, invoice_file_path, items:", supplierId, tax, invoice_file_path, items)
   const createdBy = req.user?.id || req.body.createdBy;
-
+  let session;
   try {
     // validate supplier
 
@@ -17,8 +21,8 @@ const createStockIn = async (req, res) => {
       return res.status(400).json({ message: "Purchase items required!" });
     }
 
-     const session = await mongoose.startSession();
-  session.startTransaction();
+    session = await mongoose.startSession();
+    session.startTransaction();
 
     let sub_total = 0;
     const purchaseItemIds = [];
@@ -65,13 +69,13 @@ const createStockIn = async (req, res) => {
         productId: item.productId,
         change: item.qty,
         reason: "Purchase Received",
-        referenceId: purchase._id,
+        referenceId: stockIn[0]._id,
         changedBy: req.user.id,
       }], {session});
     }
 
-    stockIn.sub_total = subTotal;
-    stockIn.total = subTotal + Number(tax || 0);
+    stockIn.sub_total = sub_total;
+    stockIn.total = sub_total + Number(tax || 0);
     stockIn.purchase_items = purchaseItemIds;
    await stockIn[0].save({ session });
 
@@ -84,8 +88,10 @@ const createStockIn = async (req, res) => {
     console.log("🚀 ~ createPurchase ~ error:", error);
     res.status(500).json({ message: "Server error" });
 
-     await session.abortTransaction();
-    session.endSession();
+     if (session) {
+      await session.abortTransaction();
+      session.endSession();
+    }
   }
 };
 

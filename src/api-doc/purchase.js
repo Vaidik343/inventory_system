@@ -90,7 +90,7 @@
  *   get:
  *     summary: Get purchase by ID
  *     tags: [Purchases]
- *     parameters:
+ *     parameters: 
  *       - in: path
  *         name: id
  *         required: true

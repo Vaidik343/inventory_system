@@ -4,7 +4,7 @@ module.exports = {
   mongodb: {
     url: process.env.DB_URL,
 
-    databaseName: "inventory_db",
+    databaseName: "inventory",
 
   },
 

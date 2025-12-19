@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
+const auth = require("../middlewares/auth");
 const {
   purchaseController
 } = require("../controllers/purchase");
 
 // CREATE PURCHASE (Stock In)
-router.post("/purchase", purchaseController.createStockIn);
+router.post("/purchase", auth,purchaseController.createStockIn);
 
 // GET ALL PURCHASES
 router.get("/purchase", purchaseController.getPurchases);
@@ -15,3 +15,4 @@ router.get("/purchase", purchaseController.getPurchases);
 router.get("/purchase/:id", purchaseController.getPurchaseById);
 
 module.exports = router;
+

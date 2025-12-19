@@ -4,7 +4,8 @@ const { Users } = require("../models");
 
 const generateAccessToken = (user) =>
   jwt.sign(
-    { id: user._id, role: user.role.name },
+    { id: user._id,
+        role: user.role?.name || user.role, },
     process.env.JWT_SECRET,
     { expiresIn: "15m" }
   );
@@ -18,18 +19,24 @@ const generateRefreshToken = (user) =>
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log("🚀 ~ login ~  email, password:",  email, password)
 
-  const user = await Users.findOne({ email }).populate("role");
+  const user = await Users.findOne({ email })
+  .select("+password")
+  .populate("role");
+  console.log("🚀 ~ login ~ user:", user)
   if (!user || !user.isActive) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
   const isMatch = await user.comparePassword(password);
+  console.log("🚀 ~ login ~ isMatch:", isMatch)
   if (!isMatch) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
   const accessToken = generateAccessToken(user);
+  console.log("🚀 ~ login ~ accessToken:", accessToken)
   const refreshToken = generateRefreshToken(user);
 
   user.refreshToken = refreshToken;

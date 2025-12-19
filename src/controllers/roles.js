@@ -57,6 +57,7 @@ const deleteRoles = async (req,res) => {
     const roleId = req.params.id;
     try {
         const role = await Roles.findByIdAndDelete(roleId)
+        console.log("🚀 ~ deleteRoles ~ role:", role)
         res.status(200).json(role)
     } catch (error) {
         console.log("🚀 ~ deleteRoles ~ error:", error)

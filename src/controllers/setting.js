@@ -16,7 +16,8 @@ const createSetting = async (req,res) => {
 
 const getSetting = async (req,res) => {
     try {
-        const setting = await Settings.findAll()
+        const setting = await Settings.find()
+        console.log("🚀 ~ getSetting ~ setting:", setting)
         res.status(200).json(setting)
     } catch (error) {
         console.log("🚀 ~ getSetting ~ error:", error)
@@ -27,10 +28,13 @@ const getSetting = async (req,res) => {
 
 const updateSetting = async (req, res) => {
     const id = req.params._id;
+    {companyName, address, invoice_prefix, tax_rates, currency}
     try {
         const setting = await Settings.findByIdAndUpdate(
-            id, { new:true
-        });
+            id,
+            {companyName, address, invoice_prefix, tax_rates, currency},
+            { new:true});
+        console.log("🚀 ~ updateSetting ~ setting:", setting)
 
         if(!setting)
         {

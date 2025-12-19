@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const {Products , Suppliers , Category} = require("../models")
 
 const createProducts = async (req, res) => {
@@ -45,7 +47,7 @@ const getProducts = async (req, res) => {
 }
 
 const updateProducts = async (req, res) => {
-    const productId = req.params._id; // change to .id if needed
+    const productId = req.params.id; // change to .id if needed
     const updateData = req.body;
 
     try {

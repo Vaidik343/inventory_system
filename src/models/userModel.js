@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
-
+const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema(
   {
     _id: {
@@ -40,11 +40,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
+
 
 /* 🔐 Compare password */
 userSchema.methods.comparePassword = function (password) {
