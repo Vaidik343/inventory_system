@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
+const auth = require("../middlewares/auth");
 const { salesController } = require("../controllers/sales");
 
 // CREATE SALE
 router.post(
   "/sales",
-
+  auth,
   salesController.createSales
 );
 
@@ -17,6 +17,6 @@ router.get("/sales",salesController.getSales);
 router.get("/sales/:id", salesController.getSalesById);
 
 // CANCEL SALE (stock rollback)
-router.patch("/sales/:id/cancel", salesController.cancelSale);
+router.patch("/sales/:id/cancel",auth, salesController.cancelSale);
 
 module.exports = router;

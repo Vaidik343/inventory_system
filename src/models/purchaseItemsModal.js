@@ -11,11 +11,11 @@ const purchaseItemsSchema = new mongoose.Schema({
         required: true
     },
     qty:{
-        type:String,
+        type:Number,
         require:true
     },
     cost_price:{
-            type: String,
+            type: Number,
             require:true
     },
     batch_No: { 

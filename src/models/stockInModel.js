@@ -14,13 +14,13 @@ const stockSchema = new mongoose.Schema({
         
     },
     total:{
-        type:String,
+        type:Number, 
         required: true
     },
     sub_total:{
-        type:String,
+        type:Number,
         required: true
-    },
+    }, 
     tax:{
         type: String,
         required: true

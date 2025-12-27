@@ -10,7 +10,7 @@ const createCategory = async(req, res) => {
         res.status(500).json({message:"Internal server error"});
         
     }
-
+ 
 }
 
 const getCategory =async (req,res) => {

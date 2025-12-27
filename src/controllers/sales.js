@@ -1,110 +1,149 @@
-const { Sales, SalesItems, Products, StockAdjustment } = require("../models");
+const mongoose = require("mongoose");
+const {
+  Sales,
+  SalesItems,
+  Products,
+  StockAdjustment,
+} = require("../models");
 
+/**
+ * CREATE SALE
+ */
 const createSales = async (req, res) => {
-  const { payment_status, items } = req.body;
+  const { items, payment_status } = req.body;
+  const createdBy = req.user.id;
 
-  const createdBy = req.user?.id || req.body.createdBy;
-  if (!items || items.length === 0) {
-      return res.status(400).json({ message: "sales items required!!" });
-    }
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: "Sales items are required" });
+  }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
-     const sale = await Sales.create([{
-      subtotal:0,
-      total:0,
-      payment_status : payment_status || "pending",
+    /** 1️⃣ Create Sale Header */
+    const sale = new Sales({
       invoiceNumber: `INV-${Date.now()}`,
+      payment_status: payment_status || "pending",
+      status: "active",
+      subtotal: 0,
+      total: 0,
       createdBy,
       sales_items: [],
-    }],{ session });
+    });
 
+    await sale.save({ session });
 
     let subtotal = 0;
+    let totalTax = 0;
     const salesItemIds = [];
 
+    /** 2️⃣ Process Sale Items */
     for (const item of items) {
-      const { productId, quantity, sell_price, discount } = item;
+      let { productId, quantity, sell_price = 0, discount = 0, tax = 0 } = item;
 
-      const product = await Products.findById(productId);
+      quantity = Number(quantity);
+      sell_price = Number(sell_price);
+      discount = Number(discount);
+      tax = Number(tax);
 
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-
-      // Stock check
+      const product = await Products.findById(productId).session(session);
+      if (!product) throw new Error("Product not found");
 
       if (product.stock_qty < quantity) {
-        return res.status(400).json({
-          message: `Insufficient stock for ${product.name}`,
-        });
+        throw new Error(`Insufficient stock for ${product.name}`);
       }
 
-      //calculate totals
+      // Calculate totals
+      const itemSubtotal = sell_price * quantity - discount;
+      const itemTaxAmount = (itemSubtotal * tax) / 100;
 
-      const itemTotal = (sell_price * quantity) - discount || 0;
-      subtotal += itemTotal;
+      subtotal += itemSubtotal;
+      totalTax += itemTaxAmount;
 
-      //reduce stock
+      /** Reduce stock */
       product.stock_qty -= quantity;
-      await product.save();
+      await product.save({ session });
 
-     //sales item
-      const salesItem = await SalesItems.create({
-        productId,
-        quantity,
-        sell_price,
-        discount
-      });
+      /** Create Sales Item */
+      const [salesItem] = await SalesItems.create(
+        [
+          {
+            saleId: sale._id,
+            productId,
+            quantity,
+            sell_price,
+            discount,
+            tax,
+            total: itemSubtotal,
+          },
+        ],
+        { session }
+      );
 
       salesItemIds.push(salesItem._id);
 
-      // auto stock adjustment
-
-       await StockAdjustment.create([{
-        productId,
-        change: -quantity,
-        reason: "Sale",
-        referenceId: sale._id,
-        changedBy: createdBy,
-      }], {session});
-
-      
-
+      /** Stock Adjustment */
+      await StockAdjustment.create(
+        [
+          {
+            productId,
+            change: -quantity,
+            reason: "Sale",
+            referenceId: sale._id,
+            changedBy: createdBy,
+          },
+        ],
+        { session }
+      );
     }
 
-        // 3️⃣ Update sale totals
+    /** 3️⃣ Finalize Sale Totals */
     sale.subtotal = subtotal;
-    sale.total = subtotal;
+    sale.total = subtotal + totalTax; // subtotal + calculated tax
     sale.sales_items = salesItemIds;
-   await sale[0].save({ session });
+
+    await sale.save({ session });
 
     await session.commitTransaction();
     session.endSession();
-    res.status(201).json(sale);
-    
+
+    // Populate sales_items with product info before returning
+    await sale.populate({
+      path: "sales_items",
+      populate: { path: "productId" },
+    });
+
+    return res.status(201).json(sale);
   } catch (error) {
-    console.log("🚀 ~ createSales ~ error:", error);
-    res.status(500).json({ message: "Server error" });
-      await session.abortTransaction();
+    await session.abortTransaction();
     session.endSession();
+
+    console.error("🚀 createSales error:", error.message);
+    return res.status(500).json({ message: error.message });
   }
 };
 
-//get all
 
+/**
+ * GET ALL SALES
+ */
 const getSales = async (req, res) => {
   try {
-    const sales = await Sales.find().populate("sales_items");
-    res.status(200).json({ sales });
+    const sales = await Sales.find()
+      .populate("sales_items")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ sales });
   } catch (error) {
-    console.log("🚀 ~ getSales ~ error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("🚀 getSales error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+/**
+ * GET SALE BY ID
+ */
 const getSalesById = async (req, res) => {
   try {
     const sale = await Sales.findById(req.params.id).populate("sales_items");
@@ -112,80 +151,90 @@ const getSalesById = async (req, res) => {
     if (!sale) {
       return res.status(404).json({ message: "Sale not found" });
     }
-    res.status(200).json(sale);
+
+    return res.status(200).json(sale);
   } catch (error) {
-    console.log("🚀 ~ getSalesById ~ error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("🚀 getSalesById error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
-//cancel sale
+/**
+ * CANCEL SALE (STOCK REVERSAL)
+ */
 const cancelSale = async (req, res) => {
   const saleId = req.params.id;
+  const userId = req.user.id;
 
-  try {
-    const sale = await Sales.findById(saleId);
-
-    if (!sale) {
-      return res.status(404).json({ message: "Sale not found" });
-    }
-
-      if (sale.status !== "active") {
-      return res
-        .status(400)
-        .json({ message: "Only active sales can be cancelled" });
-    }
   const session = await mongoose.startSession();
   session.startTransaction();
-    // //prevent double cancel
 
-    // if (sale.status === "cancelled") {
-    //   return res.status(400).json({ message: "Sale already cancelled" });
-    // }
+  try {
+    const sale = await Sales.findById(saleId).session(session);
 
-    //fetch sale items
+    if (!sale) {
+      throw new Error("Sale not found");
+    }
+
+    if (sale.status !== "active") {
+      throw new Error("Only active sales can be cancelled");
+    }
+
     const saleItems = await SalesItems.find({
       _id: { $in: sale.sales_items },
-    });
+    }).session(session);
 
-    // restore stock
+    /** Restore stock */
     for (const item of saleItems) {
-      const product = await Products.findById(item.productId);
-
+      const product = await Products.findById(item.productId).session(session);
       if (!product) continue;
 
       product.stock_qty += item.quantity;
-      await product.save();
+      await product.save({ session });
+await sale.populate({
+  path: "sales_items",
+  populate: { path: "productId" },
+});
+
+      await StockAdjustment.create(
+        [
+          {
+            productId: item.productId,
+            change: item.quantity,
+            reason: "Sale Cancelled",
+            referenceId: sale._id,
+            changedBy: userId,
+          },
+        ],
+        { session }
+      );
     }
-  
-    await StockAdjustment.create([{
-  productId: item.productId,
-  change: item.quantity,
-  reason: "Sale Cancelled",
-  referenceId: sale._id,
-  changedBy: req.user.id
-}], {session});
 
-    //update sale status
-
+    /** Update Sale Status */
     sale.status = "cancelled";
     sale.payment_status = "refunded";
-    await sale[0].save({ session });
 
+    await sale.save({ session });
 
-
- await session.commitTransaction();
+    await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({
-      message: "Sale cancelled and stock restored",
+    return res.status(200).json({
+      message: "Sale cancelled successfully",
       sale,
     });
   } catch (error) {
-    console.log("🚀 ~ cancelSale ~ error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("🚀 cancelSale error:", error.message);
+    return res.status(400).json({ message: error.message });
   }
 };
 
-module.exports.salesController = { getSalesById, getSales, createSales, cancelSale };
+module.exports.salesController = {
+  createSales,
+  getSales,
+  getSalesById,
+  cancelSale,
+};

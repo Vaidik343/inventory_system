@@ -30,7 +30,7 @@ const productSchema = new mongoose.Schema({
         ref:"Suppliers",
         required: true
     }],
-
+ 
     unit:{
         type: String,
         required: true

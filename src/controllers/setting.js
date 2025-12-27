@@ -27,11 +27,11 @@ const getSetting = async (req,res) => {
 }
 
 const updateSetting = async (req, res) => {
-    const id = req.params._id;
-    {companyName, address, invoice_prefix, tax_rates, currency}
+    const settingId = req.params.id;
+   const {companyName, address, invoice_prefix, tax_rates, currency} = req.body;
     try {
         const setting = await Settings.findByIdAndUpdate(
-            id,
+            settingId,
             {companyName, address, invoice_prefix, tax_rates, currency},
             { new:true});
         console.log("🚀 ~ updateSetting ~ setting:", setting)

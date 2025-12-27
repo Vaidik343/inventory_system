@@ -22,7 +22,7 @@ const adjustStock = async (req,res) => {
                 message: "Stock cannot be negative"
             });
         }
-
+        
         // update product stock
         product.stock_qty = newQty;
         await product.save();

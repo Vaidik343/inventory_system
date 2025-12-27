@@ -19,6 +19,10 @@ const salesItemsSchema = new mongoose.Schema({
         require:true
 
     },
+    tax: {
+  type: Number,
+  default: 0,
+},
     discount:{
         type:String,
         require:false 

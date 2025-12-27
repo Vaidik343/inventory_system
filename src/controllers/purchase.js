@@ -38,46 +38,50 @@ const createStockIn = async (req, res) => {
       purchase_items: [],
     }], {session});
     console.log("🚀 ~ createPurchase ~ stockIn:", stockIn);
+for (const item of items) {
+  const { productId, qty, cost_price, batch_No, expiry } = item;
 
-    for (const item of items) {
-      const { productId, qty, cost_price, batch_No, expiry } = item;
+  const product = await Products.findById(productId);
+  if (!product) {
+    throw new Error("Invalid product ID");
+  }
 
-      //validate product
+  sub_total += Number(qty) * Number(cost_price);
 
-      const product = await Products.findById(productId);
+  // Create purchase item
+  const purchaseItem = await PurchaseItems.create(
+    [{
+      productId,
+      qty,
+      cost_price,
+      batch_No,
+      expiry,
+    }],
+    { session }
+  );
 
-      if (!product) {
-        return res.status(404).json({ message: "Invalid product ID" });
-      }
+  // ✅ FIX: push into correct array
+  purchaseItemIds.push(purchaseItem[0]._id);
 
-      sub_total += Number(qty) * Number(cost_price);
+  // Auto stock adjustment
+  await StockAdjustment.create(
+    [{
+      productId,
+      change: qty,
+      reason: "Purchase Received",
+      referenceId: stockIn[0]._id,
+      changedBy: req.user.id,
+    }],
+    { session }
+  );
+}
 
-      //purchase item
+stockIn[0].sub_total = sub_total;
+stockIn[0].total = sub_total + Number(tax || 0);
+stockIn[0].purchase_items = purchaseItemIds;
 
-      const purchaseItem = await PurchaseItems.create([{
-        productId,
-        qty,
-        cost_price,
-        batch_No,
-        expiry,
-      }], {session});
+await stockIn[0].save({ session });
 
-      purchaseItem.push(purchaseItem._id);
-
-      // 🔹 AUTO StockAdjustment (PURCHASE)
-      await StockAdjustment.create([{
-        productId: item.productId,
-        change: item.qty,
-        reason: "Purchase Received",
-        referenceId: stockIn[0]._id,
-        changedBy: req.user.id,
-      }], {session});
-    }
-
-    stockIn.sub_total = sub_total;
-    stockIn.total = sub_total + Number(tax || 0);
-    stockIn.purchase_items = purchaseItemIds;
-   await stockIn[0].save({ session });
 
    
     await session.commitTransaction();
@@ -100,7 +104,7 @@ const createStockIn = async (req, res) => {
 const getPurchases = async (req, res) => {
   try {
     const purchases = await StockIn.find()
-      .populate("SupplierId", "name email")
+      .populate("supplierId", "name email")
       .populate({
         path: "purchase_items",
         populate: { path: "productId", select: "name sku" },

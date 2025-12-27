@@ -51,25 +51,37 @@ const createUser = async (req, res) => {
 };
 
 
-const updateUser = async (req,res) => {
-    const userId = req.params.id;
-    const { role, email, password, isActive, last_login } = req.body;
-    try {
-        if (updateData.password) {
-      updateData.password = await bcrypt.hash(updateData.password, 10);
-    }
-        const user = await Users.findByIdAndUpdate(
-            userId,
-            {role, email, password, isActive, last_login},
-             { new: true }
-        )
 
-         res.status(200).json(user);
-    } catch (error) {
-        console.log("🚀 ~ updateUser ~ error:", error)
-        res.status(500).json({message:"Internal server error"});
+const updateUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const updateData = {};
+
+    const { role, email, password, isActive, last_login } = req.body;
+
+    if (role !== undefined) updateData.role = role;
+    if (email !== undefined) updateData.email = email;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (last_login !== undefined) updateData.last_login = last_login;
+
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
     }
-}
+
+    const user = await Users.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    ).select("-password"); // 🔐 never return password
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log("🚀 ~ updateUser ~ error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const deleteUser = async (req,res) => {
      const userId = req.params.id;
     try {
