@@ -36,6 +36,21 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+     extraPermissions: [
+    {
+      resource: String,
+      action: String,
+      expiresAt: Date, // optional
+    },
+  ],
+
+  revokedPermissions: [
+    {
+      resource: String,
+      action: String,
+    },
+  ],
   },
   { timestamps: true }
 );

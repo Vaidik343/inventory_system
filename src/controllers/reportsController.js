@@ -85,6 +85,7 @@ const salesSummaryReport = async (req, res) => {
 // need few change work on later
 
 const profileReport = async (req, res) => {
+    console.log("report", req.body)
     try {
         // only active sales
         const sales = await Sales.find({ status: "active"})
@@ -95,6 +96,7 @@ const profileReport = async (req, res) => {
                 select: "name cost"
             }
         });
+        console.log("🚀 ~ profileReport ~ sales:", sales)
 
         let totalRevenue = 0;
         let totalCost = 0;
@@ -128,6 +130,7 @@ const profileReport = async (req, res) => {
     }
 
 }
+console.log("🚀 ~ profileReport ~ profileReport:", profileReport)
 
 //Stock Movement Audit Report
 

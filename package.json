@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "migrate:create": "migrate-mongo create",
     "migrate:up": "migrate-mongo up",
-    "migrate:status": "migrate-mongo status"
+    "migrate:status": "migrate-mongo status",
+    "migrate:down": "migrate-mongo down"
   },
   "repository": {
     "type": "git",

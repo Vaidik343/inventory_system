@@ -10,12 +10,16 @@ module.exports = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+    console.log("🚀 ~ token:", token)
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("🚀 ~ decoded:", decoded)
 
     const user = await Users
       .findById(decoded.id)
-      .populate("role");
+      .populate({
+    path: "role",
+    select: "name permissions",});
 
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "User not active" });

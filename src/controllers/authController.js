@@ -9,6 +9,7 @@ const generateAccessToken = (user) =>
     process.env.JWT_SECRET,
     { expiresIn: "8h" }
   );
+  console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? 'YES' : 'NO');
 
 const generateRefreshToken = (user) =>
   jwt.sign(
@@ -46,7 +47,7 @@ const login = async (req, res) => {
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .json({

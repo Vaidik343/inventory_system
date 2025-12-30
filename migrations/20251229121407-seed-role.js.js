@@ -1,12 +1,9 @@
-const { v4: uuidv4 } = require("uuid");
-
-// migrations/20251216074833-seed-roles.js
 module.exports.up = async (db) => {
   await db.collection("roles").insertMany([
     {
       _id: "admin-role-id",
       name: "admin",
-      permissions: ["*"],
+      permissions: [{ resource: "*", action: "*" }],
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -14,9 +11,9 @@ module.exports.up = async (db) => {
       _id: "manager-role-id",
       name: "manager",
       permissions: [
-        "purchase:create",
-        "stock:adjust",
-        "report:view"
+        { resource: "purchase", action: "create" },
+        { resource: "stock", action: "adjust" },
+        { resource: "report", action: "view" }
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -25,9 +22,9 @@ module.exports.up = async (db) => {
       _id: "staff-role-id",
       name: "staff",
       permissions: [
-        "sale:create",
-        "sale:view",
-        "product:view"
+        { resource: "sale", action: "create" },
+        { resource: "sale", action: "view" },
+        { resource: "product", action: "view" }
       ],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -37,6 +34,6 @@ module.exports.up = async (db) => {
 
 module.exports.down = async (db) => {
   await db.collection("roles").deleteMany({
-    name: { $in: ["admin", "manager", "staff"] },
+    _id: { $in: ["admin-role-id", "manager-role-id", "staff-role-id"] }
   });
 };

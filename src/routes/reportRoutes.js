@@ -6,8 +6,9 @@ const permit = require("../middlewares/permission");
 
 //salesReport
 router.get("/reports/sales-summary", reportController.salesSummaryReport);
-router.get("/reports/profit", auth, permit("report", "view"), reportController.profileReport)
-router.get("/reports/stock-movements", auth, permit("report", "view"),
+router.get("/reports/profit", auth,  reportController.profileReport)
+// console.log("🚀 ~ reports/profit:", reports/profit)
+router.get("/reports/stock-movements", auth, 
  reportController.stockMovementReport
 )
 

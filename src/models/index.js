@@ -10,7 +10,8 @@ const Sales = require("./salesModel");
 const SalesItems = require("./salesItems");
 const StockAdjustment = require("./stockAdjustmentModel");
 const Settings = require("./settings")
+const Permission = require("./permission")
 const mongoose = require("mongoose")
 module.exports = {
-    Roles, Users, Products, Gallery, Suppliers, Category, StockIn, PurchaseItems, Sales, SalesItems, StockAdjustment, Settings
+    Roles, Users, Products, Gallery, Suppliers, Category, StockIn, PurchaseItems, Sales, SalesItems, StockAdjustment, Settings,Permission
 }   

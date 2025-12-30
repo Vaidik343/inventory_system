@@ -11,6 +11,8 @@
  *   post:
  *     summary: Create a new sale
  *     tags: [Sales]
+ *     security:
+ *       - bearerAuth: []
  *     description: |
  *       Creates a sale, validates stock, reduces product stock,
  *       creates sales items, and logs stock adjustments automatically.

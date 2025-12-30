@@ -11,6 +11,8 @@
  *   post:
  *     summary: Create a new purchase (Stock In)
  *     tags: [Purchases]
+ *     security:
+ *       - bearerAuth: []
  *     description: |
  *       Creates a purchase entry, stores purchase items, updates product stock,
  *       and logs stock adjustments automatically.

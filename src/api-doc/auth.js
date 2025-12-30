@@ -53,7 +53,7 @@
 /**
  * @swagger
  * /api/refresh:
- *   post:
+ *   get:
  *     summary: Refresh access token
  *     tags: [Auth]
  *     responses:
