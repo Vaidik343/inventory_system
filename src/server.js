@@ -10,8 +10,7 @@ const path = require('path')
 const cookieParser = require("cookie-parser");
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-
-
+// const {apiLimiter} = require("./middlewares/rateLimiter")
 
 app.use(express.json())
 const corsOptions = { origin: "http://localhost:5173" ,  credentials: true   }
@@ -22,7 +21,6 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
     res.send("inventory system api")
 })
-
 
 const routesPath = path.join(__dirname, 'routes');
 
@@ -86,6 +84,8 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 console.log('✅ Swagger docs loaded from:', apiFiles);
+
+
 connectDB();
 
 app.listen(PORT, () => {

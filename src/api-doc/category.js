@@ -4,6 +4,13 @@
  *   name: Category
  *   description: Product category management
  */
+/**
+ * @swagger
+ * components:
+ *   responses:
+ *     TooManyRequests:
+ *       description: Too many requests
+ */
 
 /**
  * @swagger

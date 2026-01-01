@@ -7,18 +7,23 @@ const { userController
 const auth = require("../middlewares/auth");
 const permit = require("../middlewares/permit");
 
-router.post("/user", userController.createUser);
+const {apiLimiter} = require('../middlewares/rateLimiter');
 
-router.get("/user", userController.getUser);
+const {userValidation} = require("../validators/userValidation")
+const validate = require("../middlewares/validate")
 
-router.put("/user/:id", userController.updateUser);
+router.post("/user",apiLimiter, userValidation.createUserValidation, validate,userController.createUser);
 
-router.patch("/user/:id" , userController.deleteUser)
+router.get("/user", apiLimiter, userController.getUser);
 
-router.post('/user/:id/permission/grant', auth,  userController.grantPermission);
+router.put("/user/:id", apiLimiter, userValidation.updateUserValidation,validate, userController.updateUser);
 
-router.post('/user/:id/permission/revoke', auth,  userController.revokePermission)
+router.patch("/user/:id" , apiLimiter, userValidation.deleteUserValidation,validate, userController.deleteUser)
 
-router.get("/me/permissions", auth, userController.getMyPermission);
+router.post('/user/:id/permission/grant', auth, apiLimiter, userController.grantPermission);
+
+router.post('/user/:id/permission/revoke', auth,apiLimiter,  userController.revokePermission)
+
+router.get("/me/permissions", auth, apiLimiter, userController.getMyPermission);
 
 module.exports = router;

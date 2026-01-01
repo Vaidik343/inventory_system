@@ -32,7 +32,7 @@ const createProducts = async (req, res) => {
         res.status(500).json({message:"Server error!"})
     }
 
-}
+} 
 
 
 const getProducts = async (req, res) => {
