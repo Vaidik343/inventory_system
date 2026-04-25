@@ -13,7 +13,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 // const {apiLimiter} = require("./middlewares/rateLimiter")
 
 app.use(express.json())
-const corsOptions = { origin: [ "http://localhost:5173",  "*"],credentials: true   }
+const corsOptions = { origin: "http://localhost:5173", credentials: true   }
 app.use(cors(corsOptions))
 app.use(cookieParser());
 

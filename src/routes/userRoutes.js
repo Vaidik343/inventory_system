@@ -12,7 +12,7 @@ const {apiLimiter} = require('../middlewares/rateLimiter');
 const {userValidation} = require("../validators/userValidation")
 const validate = require("../middlewares/validate")
 
-router.post("/user",apiLimiter, userValidation.createUserValidation, validate,userController.createUser);
+router.post("/user",apiLimiter,userController.createUser);
 
 router.get("/user", apiLimiter, userController.getUser);
 

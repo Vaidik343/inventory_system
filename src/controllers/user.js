@@ -1,4 +1,4 @@
-const {Users, Permission} = require("../models")
+const { Users, Permission, Roles } = require("../models");
 const bcrypt = require("bcryptjs");
 const resolvePermissions = require("../utils/resolvePermissions");
 
@@ -25,7 +25,7 @@ const getUser = async (req,res) => {
 
 const createUser = async (req, res) => {
   const { role, email, password, isActive, last_login } = req.body;
-
+ console.log("🚀 ~ createUser ~ req.body:", req.body)
   try {
     const exists = await Users.findOne({ email });
     if (exists) {
@@ -33,22 +33,20 @@ const createUser = async (req, res) => {
     }
 
     // 🔧 Convert role name to role ID if needed
+// 🔧 Better Role Lookup: Try ID first, then Name
     let roleId = role;
-    const { Roles } = require("../models");
-    
-    // Check if role is a name (not an ID format)
-    // Role IDs are like "admin-role-id", "staff-role-id", etc.
-    // If it's just "admin", "staff", "manager", look up the role
-    if (role && !role.includes("-role-id")) {
-      const roleDoc = await Roles.findOne({ name: role });
+    if (role) {
+      let roleDoc = await Roles.findById(role).catch(() => null);
+      if (!roleDoc) {
+        roleDoc = await Roles.findOne({ name: role });
+      }
       if (!roleDoc) {
         return res.status(400).json({ 
-          message: `Role "${role}" not found. Use role ID or valid role name.` 
+          message: `Role "${role}" not found. Use a valid Role ID or Name.` 
         });
       }
       roleId = roleDoc._id;
     }
-
     const user = await Users.create({
       role: roleId,  // Use the role ID
       email,
@@ -56,6 +54,7 @@ const createUser = async (req, res) => {
       isActive,
       last_login,
     });
+    console.log("🚀 ~ createUser ~ user:", user)
 
     res.status(201).json({
       id: user._id,
@@ -78,20 +77,20 @@ const updateUser = async (req, res) => {
     const { role, email, password, isActive, last_login } = req.body;
 
     // 🔧 Convert role name to role ID if needed
+    // 🔧 Better Role Lookup: Try ID first, then Name
     if (role !== undefined) {
-      let roleId = role;
-      const { Roles } = require("../models");
-      
-      if (role && !role.includes("-role-id")) {
-        const roleDoc = await Roles.findOne({ name: role });
-        if (!roleDoc) {
-          return res.status(400).json({ 
-            message: `Role "${role}" not found. Use role ID or valid role name.` 
-          });
-        }
-        roleId = roleDoc._id;
+      let roleDoc = await Roles.findById(role).catch(() => null);
+
+      if (!roleDoc) {
+        roleDoc = await Roles.findOne({ name: role });
       }
-      updateData.role = roleId;
+
+      if (!roleDoc) {
+        return res.status(400).json({ 
+          message: `Role "${role}" not found. Use a valid Role ID or Name.` 
+        });
+      }
+      updateData.role = roleDoc._id;
     }
     
     if (email !== undefined) updateData.email = email;
