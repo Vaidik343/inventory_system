@@ -4,13 +4,6 @@
  *   name: Category
  *   description: Product category management
  */
-/**
- * @swagger
- * components:
- *   responses:
- *     TooManyRequests:
- *       description: Too many requests
- */
 
 /**
  * @swagger
@@ -46,6 +39,8 @@
  *     responses:
  *       200:
  *         description: List of categories
+ *       404:
+ *         description: No categories found
  *       500:
  *         description: Internal server error
  */
@@ -98,6 +93,8 @@
  *     responses:
  *       200:
  *         description: Category deleted successfully
+ *       404:
+ *         description: Category not found
  *       500:
  *         description: Internal server error
  */

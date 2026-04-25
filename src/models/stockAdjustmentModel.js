@@ -9,19 +9,25 @@ const adjustmentSchema = new mongoose.Schema({
     },
     productId:{
                    type: String,
-        ref:"Products"
+        ref:"Products",
+         required: true
     },
     changes:{ 
-        type:Number
+        type:Number,
+         required: true
     },
     reason:{
-        type:String
+        type:String,
+         required: true
     },
     referenceId:{
-        type:String
+        type:String,
+        required: false
     },
     changedBy:{
-        type:String
+        type: String,
+    ref: "Users",   
+    required: true
     }
 }, { timestamps: true })
 

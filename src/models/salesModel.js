@@ -9,10 +9,14 @@ const salesSchema = new mongoose.Schema(
     subtotal: {
       type: Number,
       required: true,
+          default: 0
+
     },
     total: {
       type: Number,
       required: true,
+          default: 0
+
     },
     payment_status: {
       type: String,

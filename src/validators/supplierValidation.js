@@ -44,8 +44,8 @@ const createSupplierValidation = [
 ];
 
 const updateSupplierValidation = [
-  param("id")
-    .isMongoId()
+  param("id").notEmpty()
+    
     .withMessage("Invalid supplier ID"),
 
   body("name")
@@ -90,8 +90,8 @@ const updateSupplierValidation = [
 ];
 
 const supplierIdParamValidation = [
-  param("id")
-    .isMongoId()
+  param("id").notEmpty()
+    
     .withMessage("Invalid supplier ID"),
 ];
 

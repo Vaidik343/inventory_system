@@ -8,17 +8,17 @@ const permissionSchema = new mongoose.Schema({
     },
     resource:{
         type: String,
-        unique: true,
+        
         required: true,
     },
     action:{
         type: String,
-        unique: true,
+     
         required: true,
     },
     description:{
         type: String,
-        unique: true,
+     
         required: false
     }
 }, {timestamps : true})

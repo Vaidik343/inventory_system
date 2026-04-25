@@ -37,20 +37,20 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-     extraPermissions: [
-    {
-      resource: String,
-      action: String,
-      expiresAt: Date, // optional
-    },
-  ],
+    extraPermissions: [
+      {
+        resource: String,
+        action: String,
+        expiresAt: Date, // optional
+      },
+    ],
 
-  revokedPermissions: [
-    {
-      resource: String,
-      action: String,
-    },
-  ],
+    revokedPermissions: [
+      {
+        resource: String,
+        action: String,
+      },
+    ],
   },
   { timestamps: true }
 );

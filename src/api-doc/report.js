@@ -11,10 +11,12 @@
  *   get:
  *     summary: Sales summary report
  *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
  *     description: |
  *       Returns aggregated sales statistics including
  *       total orders, total revenue, refunded amount,
- *       and average order value.
+ *       and average order value. Only counts active sales.
  *     parameters:
  *       - in: query
  *         name: startDate
@@ -48,6 +50,8 @@
  *                 avgOrderValue:
  *                   type: number
  *                   example: 600
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Internal server error
  */
@@ -58,11 +62,12 @@
  *   get:
  *     summary: Profit report
  *     tags: [Reports]
- *     description: |
- *       Calculates total revenue, total cost,
- *       and profit from active sales.
  *     security:
  *       - bearerAuth: []
+ *     description: |
+ *       Calculates total revenue, total cost,
+ *       and profit from active sales only.
+ *       Cancelled sales are excluded.
  *     responses:
  *       200:
  *         description: Profit report generated
@@ -94,11 +99,12 @@
  *   get:
  *     summary: Stock movement audit report
  *     tags: [Reports]
- *     description: |
- *       Returns stock adjustment history with optional filters
- *       like product, reason, and date range.
  *     security:
  *       - bearerAuth: []
+ *     description: |
+ *       Returns stock adjustment history with optional filters.
+ *       Each movement has a referenceType indicating whether it
+ *       came from a Sale, Purchase, or Manual adjustment.
  *     parameters:
  *       - in: query
  *         name: productId
@@ -109,8 +115,14 @@
  *         name: reason
  *         schema:
  *           type: string
- *           example: Sale
+ *           enum: [Sale, Purchase Received, Sale Cancelled, Manual]
  *         description: Filter by adjustment reason
+ *       - in: query
+ *         name: referenceType
+ *         schema:
+ *           type: string
+ *           enum: [Sale, Purchase, Manual]
+ *         description: Filter by reference type
  *       - in: query
  *         name: from
  *         schema:
@@ -148,11 +160,15 @@
  *                           sku:
  *                             type: string
  *                             example: IP14-128
- *                       change:
+ *                       changes:
  *                         type: number
  *                         example: -5
  *                       reason:
  *                         type: string
+ *                         example: Sale
+ *                       referenceType:
+ *                         type: string
+ *                         enum: [Sale, Purchase, Manual]
  *                         example: Sale
  *                       changedBy:
  *                         type: object

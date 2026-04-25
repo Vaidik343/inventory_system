@@ -13,15 +13,23 @@ const swaggerJsdoc = require('swagger-jsdoc');
 // const {apiLimiter} = require("./middlewares/rateLimiter")
 
 app.use(express.json())
-const corsOptions = { origin: "http://localhost:5173" ,  credentials: true   }
+const corsOptions = { origin: [ "http://localhost:5173",  "*"],credentials: true   }
 app.use(cors(corsOptions))
 app.use(cookieParser());
 
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.get("/", (req, res) => {
     res.send("inventory system api")
 })
 
+// Ensure upload temp directory exists (important for production)
+const tempDir = path.join(__dirname, "public", "temp");
+
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+  console.log("📁 Created upload temp directory:", tempDir);
+}
 const routesPath = path.join(__dirname, 'routes');
 
 fs.readdirSync(routesPath).forEach( (file) => {
@@ -86,8 +94,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 console.log('✅ Swagger docs loaded from:', apiFiles);
 
 
-connectDB();
-
-app.listen(PORT, () => {
-    console.log(`server running on http://localhost:${PORT}`)
-})
+(async () => {
+    await connectDB();
+    app.listen(PORT, () => {
+        console.log(`server running on http://localhost:${PORT}`)
+    });
+})();

@@ -18,7 +18,7 @@ const validate = require("../middlewares/validate")
 
 
 // GET ALL SALES
-router.get("/sales",apiLimiter,createSalesValidation,validate,salesController.getSales);
+router.get("/sales",apiLimiter,salesController.getSales);
 
 // GET SALE BY ID
 router.get("/sales/:id", apiLimiter, saleIdParamValidation,validate,salesController.getSalesById);

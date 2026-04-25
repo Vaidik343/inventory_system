@@ -14,7 +14,7 @@
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -36,11 +36,15 @@
  *                 type: string
  *                 example: Latest Apple iPhone
  *               categoryId:
- *                 type: string
- *                 example: 64e9d3a1f9a123456789abcd
+ *                 type: array        
+ *                 items:
+ *                   type: string
+ *                 example: ["64e9d3a1f9a123456789abcd"]
  *               supplierId:
- *                 type: string
- *                 example: 64e9d3a1f9a123456789efgh
+ *                 type: array        
+ *                 items:
+ *                   type: string
+ *                 example: ["64e9d3a1f9a123456789efgh"]
  *               unit:
  *                 type: string
  *                 example: pcs
@@ -53,17 +57,19 @@
  *               tax_rate:
  *                 type: number
  *                 example: 18
+ *                 description: Optional, defaults to 0
  *               stock_qty:
  *                 type: number
- *                 example: 50
+ *                 example: 0
+ *                 description: Optional, defaults to 0. Cannot be updated directly later.
  *               image:
  *                 type: string
- *                 example: image-url.jpg
+ *                 format: binary
  *     responses:
- *       200:
+ *       201:
  *         description: Product created successfully
  *       400:
- *         description: Validation error (SKU / category / supplier)
+ *         description: SKU already exists / Invalid category IDs / Invalid supplier IDs
  *       500:
  *         description: Server error
  */
@@ -85,7 +91,7 @@
  * @swagger
  * /api/products/{id}:
  *   put:
- *     summary: Update product details (stock update not allowed)
+ *     summary: Update product details (stock_qty update not allowed)
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -103,28 +109,41 @@
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 15 Pro
  *               sku:
  *                 type: string
+ *                 example: IPH15-PRO
  *               description:
  *                 type: string
+ *                 example: Updated iPhone description
+ *               supplierId:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["64e9d3a1f9a123456789efgh"]
+ *                 description: Must be valid existing supplier IDs
  *               sell_price:
  *                 type: number
+ *                 example: 80000
  *               tax_rate:
  *                 type: number
+ *                 example: 18
  *     responses:
  *       200:
  *         description: Product updated successfully
  *       400:
- *         description: Invalid update (stock or duplicate SKU)
+ *         description: Stock update not allowed / Duplicate SKU / Invalid supplier IDs
+ *       404:
+ *         description: Product not found
  *       500:
  *         description: Server error
  */
 
 /**
  * @swagger
- * /api/product/{id}:
- *   patch:
- *     summary: Soft delete a product
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Soft delete (deactivate) a product
  *     tags: [Products]
  *     parameters:
  *       - in: path

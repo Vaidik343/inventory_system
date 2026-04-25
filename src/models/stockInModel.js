@@ -15,15 +15,18 @@ const stockSchema = new mongoose.Schema({
     },
     total:{
         type:Number, 
-        required: true
+        required: true,
+         default: 0
     },
     sub_total:{
         type:Number,
-        required: true
+        required: true,
+         default: 0
     }, 
     tax:{
-        type: String,
-        required: true
+        type: Number,
+        required: true,
+         default: 0
     },
     invoice_file_path: {
         type: String,

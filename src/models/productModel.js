@@ -45,18 +45,23 @@ const productSchema = new mongoose.Schema({
     },
     tax_rate:{
         type: Number,
-        required: true
+         required: false,
+    default: 0
     },
     stock_qty:{
         type: Number,
-        required: true
+         default: 0,
+    required: false
     },
     image:{
         type: String,
         // ref: "Gallery",
        
     },
-    
+    isActive:{
+    type: Boolean,
+    default: true
+}
 
 },{ timestamps: true })
 

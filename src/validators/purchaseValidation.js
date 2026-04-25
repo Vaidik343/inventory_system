@@ -3,9 +3,9 @@ const mongoose = require("mongoose");
 
 const createStockInValidation = [
   body("supplierId")
-    .notEmpty().withMessage("Supplier ID is required")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid supplier ID"),
+    .notEmpty().withMessage("Supplier ID is required"),
+    // .custom(value => mongoose.Types.ObjectId.isValid(value))
+    // .withMessage("Invalid supplier ID"),
 
   body("tax")
     .optional()
@@ -23,7 +23,7 @@ const createStockInValidation = [
 
   body("items.*.productId")
     .notEmpty()
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
+    // .custom(value => mongoose.Types.ObjectId.isValid(value))
     .withMessage("Invalid product ID"),
 
   body("items.*.qty")
@@ -47,8 +47,7 @@ const createStockInValidation = [
 
 const purchaseIdValidation = [
   param("id")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid purchase ID"),
+    .notEmpty().withMessage("Purchase ID is required"),
 ];
 
 module.exports.purchaseValidation = {

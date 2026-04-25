@@ -9,7 +9,7 @@ const createUserValidation = [
 ]
 
 const updateUserValidation = [
-    param("id").isMongoId().withMessage("Invalid user ID"),
+    param("id").notEmpty().withMessage("Invalid user ID"),
 
     body("role").optional().notEmpty(),
     body("email").optional().isEmail(),
@@ -19,7 +19,7 @@ const updateUserValidation = [
 ]
 
 const deleteUserValidation = [
-    param("id").isMongoId().withMessage("Invalid user ID")
+    param("id").notEmpty().withMessage("Invalid user ID")
 ]
    
-module.exports.userValidation = {createUserValidation, updateUserValidation,deleteUserValidation} 
+module.exports.userValidation = {createUserValidation, updateUserValidation,deleteUserValidation}  

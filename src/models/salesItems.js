@@ -11,22 +11,25 @@ const salesItemsSchema = new mongoose.Schema({
             required: true
     },
     quantity:{
-        type: String,
-        required: true
+        type: Number,
+    required: true
     },
     sell_price:{
-        type: String,
-        require:true
-
+        type: Number,
+    required: true
     },
     tax: {
   type: Number,
   default: 0,
 },
     discount:{
-        type:String,
-        require:false 
-    }
+         type: Number,
+   default: 0
+    },
+    total:{
+    type: Number,
+    required: true
+}
 }, { timestamps: true })
 
 module.exports = mongoose.model("SalesItems", salesItemsSchema) 

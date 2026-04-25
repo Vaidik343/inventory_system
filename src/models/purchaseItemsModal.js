@@ -12,19 +12,19 @@ const purchaseItemsSchema = new mongoose.Schema({
     },
     qty:{
         type:Number,
-        require:true
+        required: true
     },
     cost_price:{
             type: Number,
-            require:true
+             required: true
     },
     batch_No: { 
         type: String,
         required: true
     },
         expiry: {
-            type: String,
-            required: true
+            type: Date,
+    required: true
         }
 
 }, { timestamps: true })

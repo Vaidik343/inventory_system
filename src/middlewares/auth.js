@@ -18,8 +18,12 @@ module.exports = async (req, res, next) => {
     const user = await Users
       .findById(decoded.id)
       .populate({
-    path: "role",
-    select: "name permissions",});
+        path: "role",
+        populate: {
+          path: "permissions",
+          select: "resource action",
+        },
+      });
 
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "User not active" });

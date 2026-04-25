@@ -19,9 +19,7 @@ const createPermissionValidation = [
 ];
 
 const updatePermissionValidation = [
-  param("id")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid permission ID"),
+  // body("id").withMessage("Invalid permission ID"),
 
   body("resource")
     .optional()

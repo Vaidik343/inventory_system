@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {apiLimiter} = require('../middlewares/rateLimiter');
+const auth = require("../middlewares/auth");
 
 const {
  stockAdjustmentController
@@ -12,10 +13,10 @@ const validate = require("../middlewares/validate")
 
 
 // MANUAL STOCK ADJUSTMENT
-router.post("/stockAdjust", apiLimiter,adjustStockValidation,validate,stockAdjustmentController.adjustStock);
+router.post("/stockAdjust",auth, apiLimiter,adjustStockValidation,validate,stockAdjustmentController.adjustStock);
 
 // VIEW STOCK ADJUSTMENT HISTORY
-router.get("/stockAdjust", apiLimiter, stockAdjustmentController.getAllAdjustmentStock);
+router.get("/stockAdjust", auth, apiLimiter, stockAdjustmentController.getAllAdjustmentStock);
 
 module.exports = router;
  

@@ -1,71 +1,110 @@
-const {Roles} = require("../models")
+const { Roles, Permission } = require("../models")
 
-const createRole = async(req, res) => {
-    const {name} = req.body;
-    try {
-        const role = await Roles.create({name});
-        res.status(201).json(role)
-    } catch (error) {
-        console.log("🚀 ~ createRole ~ error:", error);
-        res.status(500).json({message:"Internal server error"});
-        
+// ─────────────────────────────────────────
+const createRole = async (req, res) => {
+  const { name, permissions } = req.body;
+  try {
+    // ✅ Validate permission IDs if provided
+    if (permissions && permissions.length > 0) {
+      const foundPermissions = await Permission.find({
+        _id: { $in: permissions }
+      });
+
+      if (foundPermissions.length !== permissions.length) {
+        return res.status(400).json({ message: "One or more invalid permission IDs" });
+      }
     }
 
+    const role = await Roles.create({
+      name,
+      permissions: permissions || []  // ✅ store permission IDs
+    });
+
+    // ✅ populate so response shows full permission objects
+    await role.populate("permissions");
+
+    res.status(201).json(role);
+  } catch (error) {
+    console.log("🚀 ~ createRole ~ error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
-const getRoles =async (req,res) => {
-    try {
-        const roles = await Roles.find();
+// ─────────────────────────────────────────
+const getRoles = async (req, res) => {
+  try {
+    const roles = await Roles.find()
+      .populate("permissions"); // ✅ populate permission details
 
-        if(!roles)
-        {
-            return res.status(404).json({message:"Not found"})
-        }
-
-        res.status(200).json(roles)
-    } catch (error) {
-        console.log("🚀 ~ getRoles ~ error:", error)
-         res.status(500).json({message:"Internal server error"});
+    if (!roles || roles.length === 0) {
+      return res.status(404).json({ message: "No roles found" })
     }
 
+    res.status(200).json(roles)
+  } catch (error) {
+    console.log("🚀 ~ getRoles ~ error:", error)
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
-const updateRoles = async (req,res) => {
-    const roleId = req.params.id;
-     const {name} = req.body;
-    try {
-        const role = await Roles.findByIdAndUpdate(
-            roleId,
-            {name},
-             { new: true }
-        )
+// ─────────────────────────────────────────
+const updateRoles = async (req, res) => {
+  const roleId = req.params.id;
+  const { name, permissions } = req.body;
 
-          if(!role)
-        {
-            return res.status(404).json({message:"Not found"})
-        }
-        res.status(200).json(role)
-        role.save();
-    } catch (error) {
-       console.log("🚀 ~ updateRoles ~ error:", error)
-       
-         res.status(500).json({message:"Internal server error"});
-        
+  try {
+    // ✅ Validate permission IDs if being updated
+    if (permissions && permissions.length > 0) {
+      const foundPermissions = await Permission.find({
+        _id: { $in: permissions }
+      });
+
+      if (foundPermissions.length !== permissions.length) {
+        return res.status(400).json({ message: "One or more invalid permission IDs" });
+      }
     }
-}
-const deleteRoles = async (req,res) => {
-    const roleId = req.params.id;
-    try {
-        const role = await Roles.findByIdAndDelete(roleId)
-        console.log("🚀 ~ deleteRoles ~ role:", role)
-        res.status(200).json(role)
-    } catch (error) {
-        console.log("🚀 ~ deleteRoles ~ error:", error)
-         res.status(500).json({message:"Internal server error"});
-        
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (permissions !== undefined) updateData.permissions = permissions;
+
+    const role = await Roles.findByIdAndUpdate(
+      roleId,
+      updateData,
+      { new: true }
+    ).populate("permissions"); // ✅ populate in same query
+
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" })
     }
+
+    // ✅ removed role.save() — findByIdAndUpdate already saves
+    res.status(200).json(role)
+
+  } catch (error) {
+    console.log("🚀 ~ updateRoles ~ error:", error)
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
+// ─────────────────────────────────────────
+const deleteRoles = async (req, res) => {
+  const roleId = req.params.id;
+  try {
+    const role = await Roles.findByIdAndDelete(roleId)
+
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" }) // ✅ added check
+    }
+
+    res.status(200).json({ message: "Role deleted successfully" })
+  } catch (error) {
+    console.log("🚀 ~ deleteRoles ~ error:", error)
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// ─────────────────────────────────────────
 const roleOnly = (roleName) => {
   return (req, res, next) => {
     if (req.user.role.name !== roleName) {
@@ -75,5 +114,10 @@ const roleOnly = (roleName) => {
   };
 };
 
-
-module.exports.rolesController = {createRole,getRoles,updateRoles,deleteRoles, roleOnly }
+module.exports.rolesController = {
+  createRole,
+  getRoles,
+  updateRoles,
+  deleteRoles,
+  roleOnly
+}

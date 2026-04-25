@@ -11,5 +11,5 @@ const userPermissionSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+userPermissionSchema.index({ userId: 1, permissionId: 1 }, { unique: true });
 module.exports = mongoose.model("UserPermission", userPermissionSchema);

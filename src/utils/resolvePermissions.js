@@ -8,8 +8,15 @@ module.exports = (user) => {
   const revokedPerms = user.revokedPermissions || [];
 
   const match = (p, perm) => {
-    if (p === "*") return true;
+    if (!p) return false;
 
+    // Handle string format (like "*" or "product:view")
+    if (typeof p === "string") {
+      if (p === "*") return true;
+      return p === `${perm.resource}:${perm.action}`;
+    }
+
+    // Handle object format
     if (p.resource === "*" && p.action === "*") return true;
     if (p.resource === perm.resource && p.action === "*") return true;
     if (p.resource === "*" && p.action === perm.action) return true;

@@ -25,8 +25,7 @@ const salesSummaryReportValidation = [
 
 const stockMovementReportValidation = [
   query("productId")
-    .optional()
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
+    .optional().notEmpty()
     .withMessage("Invalid product ID"),
 
   query("reason")

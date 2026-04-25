@@ -5,13 +5,13 @@ const createCategoryValidation = [
 ]
 
 const updateCategoryValidation = [
-    param("id").isMongoId().withMessage("Invalid category ID"),
+    // body("id").withMessage("Invalid category ID").notEmpty(),
 
     body("name").optional().notEmpty()
 ]
 
 const deleteCategoryValidation = [
-        param("id").isMongoId().withMessage("Invalid category ID")
+        // param("id").withMessage("Invalid category ID")
 ]
 
 module.exports.categoryValidation = {createCategoryValidation , deleteCategoryValidation, updateCategoryValidation} 

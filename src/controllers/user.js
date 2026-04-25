@@ -174,7 +174,13 @@ const revokePermission = async (req, res) => {
 
 const getMyPermission = async (req, res) => {
  try {
-    const user = await Users.findById(req.user.id).populate("role");
+    const user = await Users.findById(req.user.id).populate({
+      path: "role",
+      populate: {
+        path: "permissions",
+        select: "resource action",
+      },
+    });
     console.log("🚀 ~ getMyPermission ~ user:", user)
     if (!user) return res.status(404).json({ message: "User not found" });
 

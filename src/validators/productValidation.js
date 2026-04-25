@@ -11,14 +11,14 @@ const createProductValidation = [
     .notEmpty().withMessage("SKU is required"),
 
   body("categoryId")
-    .notEmpty().withMessage("Category ID is required")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid category ID"),
+    .notEmpty().withMessage("Category ID is required"),
+    // .custom(value => mongoose.Types.ObjectId.isValid(value))
+    // .withMessage("Invalid category ID"),
 
   body("supplierId")
-    .notEmpty().withMessage("Supplier ID is required")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid supplier ID"),
+    .notEmpty().withMessage("Supplier ID is required"),
+    // .custom(value => mongoose.Types.ObjectId.isValid(value))
+    // .withMessage("Invalid supplier ID"),
 
   body("unit")
     .notEmpty().withMessage("Unit is required"),
@@ -42,9 +42,7 @@ const createProductValidation = [
 ];
 
 const updateProductValidation = [
-  param("id")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid product ID"),
+  // param("id").withMessage("Invalid product ID"),
 
   body("stock_qty")
     .not()

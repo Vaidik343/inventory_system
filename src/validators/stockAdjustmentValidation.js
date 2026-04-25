@@ -3,9 +3,7 @@ const mongoose = require("mongoose");
 
 const adjustStockValidation = [
   body("productId")
-    .notEmpty().withMessage("Product ID is required")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid product ID"),
+    .notEmpty().withMessage("Product ID is required"),
 
   body("changes")
     .notEmpty().withMessage("Changes is required")
@@ -19,15 +17,11 @@ const adjustStockValidation = [
     .notEmpty()
     .withMessage("Reason is required"),
 
-  body("referenceId")
-    .optional()
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid reference ID"),
+  body("referenceId").notEmpty()
+    .optional().withMessage("Invalid reference ID"),
 
-  body("changedBy")
-    .optional()
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid changedBy user ID"),
+  body("changedBy").notEmpty()
+    .optional().withMessage("Invalid changedBy user ID"),
 ];
 
 module.exports = {

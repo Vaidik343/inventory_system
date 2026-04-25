@@ -88,7 +88,7 @@ const createSales = async (req, res) => {
         [
           {
             productId,
-            change: -quantity,
+            changes: -quantity,
             reason: "Sale",
             referenceId: sale._id,
             changedBy: createdBy,
@@ -171,58 +171,48 @@ const cancelSale = async (req, res) => {
 
   try {
     const sale = await Sales.findById(saleId).session(session);
-
-    if (!sale) {
-      throw new Error("Sale not found");
-    }
-
-    if (sale.status !== "active") {
-      throw new Error("Only active sales can be cancelled");
-    }
+    if (!sale) throw new Error("Sale not found");
+    if (sale.status !== "active") throw new Error("Only active sales can be cancelled");
 
     const saleItems = await SalesItems.find({
       _id: { $in: sale.sales_items },
     }).session(session);
 
-    /** Restore stock */
+    // Restore stock for each item
     for (const item of saleItems) {
       const product = await Products.findById(item.productId).session(session);
       if (!product) continue;
 
-      product.stock_qty += item.quantity;
+      product.stock_qty += Number(item.quantity); // ✅ Number() for safety
       await product.save({ session });
-await sale.populate({
-  path: "sales_items",
-  populate: { path: "productId" },
-});
 
-      await StockAdjustment.create(
-        [
-          {
-            productId: item.productId,
-            change: item.quantity,
-            reason: "Sale Cancelled",
-            referenceId: sale._id,
-            changedBy: userId,
-          },
-        ],
-        { session }
-      );
+      await StockAdjustment.create([{
+        productId: item.productId,
+        changes: Number(item.quantity), // ✅ fixed: 'changes' not 'change'
+        reason: "Sale Cancelled",
+        referenceId: sale._id,
+        changedBy: userId,
+      }], { session });
     }
 
-    /** Update Sale Status */
     sale.status = "cancelled";
     sale.payment_status = "refunded";
-
     await sale.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
+    // ✅ populate ONCE, AFTER transaction, OUTSIDE loop
+    await sale.populate({
+      path: "sales_items",
+      populate: { path: "productId" },
+    });
+
     return res.status(200).json({
       message: "Sale cancelled successfully",
       sale,
     });
+
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

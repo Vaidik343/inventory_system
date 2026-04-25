@@ -14,8 +14,9 @@
  *     security:
  *       - bearerAuth: []
  *     description: |
- *       Creates a new user.
- *       Password is hashed automatically before saving.
+ *       Creates a new user. Password is hashed automatically before saving.
+ *       Extra and revoked permissions are managed via specific endpoints 
+ *       and stored directly on the user.
  *     requestBody:
  *       required: true
  *       content:
@@ -27,10 +28,10 @@
  *               - email
  *               - password
  *             properties:
-*               role:
-*                 type: string
-*                 description: Role ID (e.g., "admin-role-id") or role name (e.g., "admin")
-*                 example: "admin-role-id"
+ *               role:
+ *                 type: string
+ *                 description: Role ID referencing the Roles collection
+ *                 example: 64e9d3a1f9a123456789abcd
  *               email:
  *                 type: string
  *                 example: admin@example.com
@@ -39,10 +40,8 @@
  *                 example: StrongPassword@123
  *               isActive:
  *                 type: boolean
+ *                 default: true
  *                 example: true
- *               last_login:
- *                 type: string
- *                 format: date-time
  *     responses:
  *       201:
  *         description: User created successfully
@@ -58,12 +57,14 @@
  *   get:
  *     summary: Get all users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     description: Fetch all registered users
  *     responses:
  *       200:
  *         description: List of users
  *       404:
- *         description: Users not found
+ *         description: No users found
  *       500:
  *         description: Internal server error
  */
@@ -74,9 +75,12 @@
  *   put:
  *     summary: Update user
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     description: |
  *       Updates user details.
- *       If password is provided, it will be re-hashed.
+ *       If password is provided it will be re-hashed automatically.
+ *       To manage permissions use the grant/revoke endpoints instead.
  *     parameters:
  *       - in: path
  *         name: id
@@ -93,7 +97,8 @@
  *             properties:
  *               role:
  *                 type: string
- *                 example: staff
+ *                 description: Role ID
+ *                 example: 64e9d3a1f9a123456789abcd
  *               email:
  *                 type: string
  *                 example: staff@example.com
@@ -103,12 +108,11 @@
  *               isActive:
  *                 type: boolean
  *                 example: true
- *               last_login:
- *                 type: string
- *                 format: date-time
  *     responses:
  *       200:
  *         description: User updated successfully
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
@@ -116,11 +120,12 @@
 /**
  * @swagger
  * /api/user/{id}:
- *   patch:
+ *   delete:
  *     summary: Soft delete user (Deactivate)
  *     tags: [Users]
- *     description: |
- *       Soft deletes a user by setting isActive = false.
+ *     security:
+ *       - bearerAuth: []
+ *     description: Soft deletes a user by setting isActive to false
  *     parameters:
  *       - in: path
  *         name: id
@@ -131,6 +136,8 @@
  *     responses:
  *       200:
  *         description: User deactivated successfully
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
@@ -143,7 +150,10 @@
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
- *     description: Adds an extra permission to a user
+ *     description: |
+ *       Grants a permission to a user.
+ *       Permissions granted here override role-level restrictions.
+ *       Stored in the user's extraPermissions array.
  *     parameters:
  *       - in: path
  *         name: id
@@ -163,10 +173,15 @@
  *             properties:
  *               resource:
  *                 type: string
- *                 example: product
+ *                 example: products
  *               action:
  *                 type: string
  *                 example: create
+ *               expiresAt:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Optional expiry for temporary permission
+ *                 example: 2025-12-31T00:00:00.000Z
  *     responses:
  *       200:
  *         description: Permission granted successfully
@@ -175,7 +190,7 @@
  *       500:
  *         description: Internal server error
  */
- 
+
 /**
  * @swagger
  * /api/user/{id}/permission/revoke:
@@ -184,7 +199,9 @@
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
- *     description: Revokes a permission by adding it to revokedPermissions
+ *     description: |
+ *       Revokes a permission from a user.
+ *       Stored in the user's revokedPermissions array.
  *     parameters:
  *       - in: path
  *         name: id
@@ -204,15 +221,15 @@
  *             properties:
  *               resource:
  *                 type: string
- *                 example: sales
+ *                 example: products
  *               action:
  *                 type: string
- *                 example: delete
+ *                 example: create
  *     responses:
  *       200:
  *         description: Permission revoked successfully
  *       404:
- *         description: User not found
+ *         description: User not found or permission not found
  *       500:
  *         description: Internal server error
  */
@@ -221,16 +238,16 @@
  * @swagger
  * /api/user/me/permissions:
  *   get:
- *     summary: Get my permissions
+ *     summary: Get my resolved permissions
  *     tags: [Users]
- *     description: |
- *       Returns resolved permissions for the logged-in user
- *       including role, extra, and revoked permissions.
  *     security:
  *       - bearerAuth: []
+ *     description: |
+ *       Returns the fully resolved permissions for the logged-in user.
+ *       Combines role permissions with individually granted or revoked permissions.
  *     responses:
  *       200:
- *         description: User permissions
+ *         description: Resolved user permissions
  *         content:
  *           application/json:
  *             schema:
@@ -242,15 +259,15 @@
  *                     role:
  *                       type: array
  *                       items:
- *                         type: object
+ *                         $ref: '#/components/schemas/Permission'
  *                     extra:
  *                       type: array
  *                       items:
- *                         type: object
+ *                         $ref: '#/components/schemas/Permission'
  *                     revoked:
  *                       type: array
  *                       items:
- *                         type: object
+ *                         $ref: '#/components/schemas/Permission'
  *       401:
  *         description: Unauthorized
  *       404:

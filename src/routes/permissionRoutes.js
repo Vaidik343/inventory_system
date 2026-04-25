@@ -18,6 +18,7 @@ router.post(
   permissionController.createPermission
 );
 
+router.get("/permission", auth, apiLimiter, permissionController.getPermissions)
 router.put(
   "/permission/:id",
   auth,
@@ -26,6 +27,24 @@ router.put(
   validate,
   // permit("permission", "update"),
   permissionController.updatePermission
+);
+router.get(
+  "/permission/:id",
+  auth,
+  apiLimiter,
+
+  
+  // permit("permission", "update"),
+  permissionController.getPermissionById
+);
+router.delete(
+  "/permission/:id",
+  auth,
+  apiLimiter,
+
+
+  // permit("permission", "update"),
+  permissionController.deletePermission
 );
 
 module.exports = router;

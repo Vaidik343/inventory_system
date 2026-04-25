@@ -12,8 +12,9 @@ const roleSchema = new mongoose.Schema({
         required: true,
     },
     permissions: [{
-        resource: String,
-      action: String,
+       type: String,
+
+       ref: "Permission"
     }]
 }, {timestamps: true})
 

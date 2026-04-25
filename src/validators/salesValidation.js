@@ -8,7 +8,7 @@ const createSalesValidation = [
   body("items.*.productId")
     .notEmpty()
     .withMessage("Product ID is required")
-    .isMongoId()
+    
     .withMessage("Invalid product ID"),
 
   body("items.*.quantity")
@@ -39,9 +39,7 @@ const createSalesValidation = [
 ];
 
 const saleIdParamValidation = [
-  param("id")
-    .isMongoId()
-    .withMessage("Invalid sale ID"),
+  param("id").notEmpty().withMessage("Invalid sale ID"),
 ];
 
 module.exports = {

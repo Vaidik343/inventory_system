@@ -11,9 +11,8 @@ const createRoleValidation = [
 ];
 
 const updateRoleValidation = [
-  param("id")
-    .custom(value => mongoose.Types.ObjectId.isValid(value))
-    .withMessage("Invalid role ID"),
+  param("id").notEmpty()
+.withMessage("Invalid role ID"),
 
   body("name")
     .trim()

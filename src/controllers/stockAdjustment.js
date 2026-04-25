@@ -4,7 +4,7 @@ const {Products, StockAdjustment} = require("../models")
 const adjustStock = async (req,res) => {
     const {productId, changes, reason, referenceId } = req.body;
 
-    const changedBy = req.body.user?.id || req.body.changedBy;
+    const changedBy = req.user?.id || req.body.changedBy;
 
     try {
         const product = await Products.findById(productId);
