@@ -198,4 +198,4 @@ const getMyPermission = async (req, res) => {
   }
 
 }
-module.exports.userController = {getUser,createUser, updateUser,deleteUser, getMyPermission , revokePermission , grantPermission} 
+module.exports.userController = {getUser,createUser, updateUser,deleteUser, getMyPermission , revokePermission , grantPermission}   
